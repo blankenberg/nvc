@@ -122,6 +122,12 @@
     <data format="vcf" name="output_vcf" />
   </outputs>
   <help>
+.. class:: warningmark
+
+Upgrading to version 0.0.2 is recommended.
+
+------
+
 **What it does**
 
 This tool is a naive variant caller that processes aligned sequencing reads from the BAM format and produces a VCF file containing per position variant calls. This tool allows multiple BAM files to be provided as input and utilizes read group information to make calls for individual samples. 
