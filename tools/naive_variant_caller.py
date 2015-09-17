@@ -1,9 +1,10 @@
+#!/usr/bin/env python
 #Dan Blankenberg
 import sys
 import optparse
 
 from pyBamParser.bam import Reader
-from pyBamTools.genotyping.naive import VCFReadGroupGenotyper
+from pyBamTools.genotyping.naive import VCFReadGroupGenotyper, PROGRAM_NAME, PROGRAM_VERSION
 
 def main():
     #Parse Command Line
@@ -22,7 +23,12 @@ def main():
     parser.add_option( '--allow_out_of_bounds_positions', dest='allow_out_of_bounds_positions', action='store_true', default = False, help='Allows out of bounds positions to not throw fatal errors' )
     parser.add_option( '--safe', dest='safe', action='store_true', default = False, help='Perform checks to prevent certain errors. Is slower.' )
     parser.add_option( '--region', dest='region', action='append', type="string", default=[], help='region' )
+    parser.add_option( '', '--version', dest='version', action='store_true', default = False, help='Report version and quit' )
     (options, args) = parser.parse_args()
+    
+    if options.version:
+        print "%s version %s" % ( PROGRAM_NAME, PROGRAM_VERSION )
+        sys.exit(0)
     
     if len( options.bam_file ) == 0:
         print >>sys.stderr, 'You must provide at least one bam (-b) file.'

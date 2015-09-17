@@ -1,9 +1,9 @@
-<tool id="naive_variant_caller" name="Naive Variant Caller" version="0.0.1">
+<tool id="naive_variant_caller" name="Naive Variant Caller" version="0.0.2">
   <description> - tabulate variable sites from BAM datasets</description>
   <requirements>
     <requirement type="package" version="1.7.1">numpy</requirement>
     <requirement type="package" version="0.0.1">pyBamParser</requirement>
-    <requirement type="package" version="0.0.1">pyBamTools</requirement>
+    <requirement type="package" version="0.0.2">pyBamTools</requirement>
   </requirements>
   <stdio>
     <exit_code range="1:" err_level="fatal" />
@@ -52,6 +52,7 @@
          ${advanced_options.safe}
      #end if 
   </command>
+  <version_command interpreter="python">naive_variant_caller.py --version</version_command>
   <inputs>
     <conditional name="reference_source">
       <param name="reference_source_selector" type="select" label="Choose the source for the reference list">
@@ -122,12 +123,6 @@
     <data format="vcf" name="output_vcf" />
   </outputs>
   <help>
-.. class:: warningmark
-
-Upgrading to version 0.0.2 is recommended.
-
-------
-
 **What it does**
 
 This tool is a naive variant caller that processes aligned sequencing reads from the BAM format and produces a VCF file containing per position variant calls. This tool allows multiple BAM files to be provided as input and utilizes read group information to make calls for individual samples. 
