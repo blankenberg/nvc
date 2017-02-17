@@ -199,11 +199,6 @@ Choose the dtype to use for storing coverage information:
         | uint64 | 18,446,744,073,709,551,615 |
         +--------+----------------------------+
 
-------
-
-**Citation**
-
-If you use this tool, please cite Blankenberg D, et al. *In preparation.*
 
   </help>
   <tests>
@@ -223,5 +218,9 @@ If you use this tool, please cite Blankenberg D, et al. *In preparation.*
           <output name="output_vcf" file="fake_phiX174_reads_1_test_out_1.vcf" compare="contains" />
       </test>
   </tests>
-  
+
+  <citations>
+    <citation type="doi">10.1186/gb4161</citation>
+  </citations>
+
 </tool>
