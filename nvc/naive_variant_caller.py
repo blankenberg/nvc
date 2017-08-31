@@ -22,7 +22,8 @@ def main():
     parser.add_option( '-t', '--coverage_dtype', dest='coverage_dtype', action='store', type="string", default=None, help='dtype to use for coverage array' )
     parser.add_option( '--allow_out_of_bounds_positions', dest='allow_out_of_bounds_positions', action='store_true', default = False, help='Allows out of bounds positions to not throw fatal errors' )
     parser.add_option( '--safe', dest='safe', action='store_true', default = False, help='Perform checks to prevent certain errors. Is slower.' )
-    parser.add_option( '--region', dest='region', action='append', type="string", default=[], help='region' )
+    parser.add_option( '--region', dest='region', action='append', type="string", default=[], help='region. Either <chrom> or <chrom>:<start>-<end>, origin-0 half-open.' )
+    parser.add_option( '--regions_filename', dest='regions_file', action='append', type="string", default=[], help='Regions filename. Three columns, origin-0 half-open. Extra columns ignored. Multiple allowed.' )
     parser.add_option( '', '--version', dest='version', action='store_true', default = False, help='Report version and quit' )
     (options, args) = parser.parse_args()
     
@@ -60,6 +61,18 @@ def main():
                         sys.exit( 1 )
                     region = tuple( [ region ] + map( int, region_split ) )
             regions.append( region )
+    
+    if options.regions_file:
+        for regions_filename in options.regions_file:
+            with open( regions_filename, 'rt' ) as f:
+                for region in f:
+                    region_split = region.strip().split( )
+                    if len( region_split ) < 3:
+                        print >> sys.stderr, "You must specify chromosome, start, and end when specifying regions."
+                        cleanup_before_exit( tmp_dir )
+                        sys.exit( 1 )
+                    region = region_split[0:1] + map( int, region_split[1:3] )
+                    regions.append( tuple(region) )
     
     coverage = VCFReadGroupGenotyper( map( lambda x: Reader( *x ), bam_files ), options.reference_genome_filename, dtype=options.coverage_dtype,
                                                min_support_depth=options.min_support_depth, min_base_quality=options.min_base_quality, 
