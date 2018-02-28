@@ -22,7 +22,9 @@ def main():
     parser.add_option( '-t', '--coverage_dtype', dest='coverage_dtype', action='store', type="string", default=None, help='dtype to use for coverage array' )
     parser.add_option( '--allow_out_of_bounds_positions', dest='allow_out_of_bounds_positions', action='store_true', default = False, help='Allows out of bounds positions to not throw fatal errors' )
     parser.add_option( '--safe', dest='safe', action='store_true', default = False, help='Perform checks to prevent certain errors. Is slower.' )
-    parser.add_option( '--region', dest='region', action='append', type="string", default=[], help='region' )
+    parser.add_option( '--region', dest='region', action='append', type="string", default=[], help='region. Either <chrom> or <chrom>:<start>-<end>, origin-0 half-open.' )
+    parser.add_option( '--regions_filename', dest='regions_file', action='append', type="string", default=[], help='Regions filename. Three columns, origin-0 half-open. Extra columns ignored. Multiple allowed.' )
+    parser.add_option( '--regions_file_columns', dest='regions_file_columns', action='append', type="string", default=[], help='Columns in regions file for chrom,start,end. 0-based' )
     parser.add_option( '', '--version', dest='version', action='store_true', default = False, help='Report version and quit' )
     (options, args) = parser.parse_args()
     
@@ -56,10 +58,30 @@ def main():
                 if region_split:
                     if len( region_split ) != 2:
                         print >> sys.stderr, "You must specify both a start and an end, or only a chromosome when specifying regions."
-                        cleanup_before_exit( tmp_dir )
                         sys.exit( 1 )
                     region = tuple( [ region ] + map( int, region_split ) )
             regions.append( region )
+    
+    if options.regions_file:
+        if options.regions_file_columns:
+            if len( options.regions_file_columns ) != len( options.regions_file ):
+                print >> sys.stderr, "If you are providing columns for one regions file, you must provide columns for all regions files."
+                sys.exit( 1 )
+        else:
+            options.regions_file_columns = ['0,1,2'] * len( options.regions_file )
+        for regions_filename, regions_columns in zip( options.regions_file, options.regions_file_columns ):
+            cols = map( int, regions_columns.split( ',' ) )
+            if len( cols ) != 3:
+                print >> sys.stderr, "You must specify chromosome, start, and end when specifying region columns."
+                sys.exit( 1 )
+            col_max = max( cols )
+            with open( regions_filename, 'rt' ) as f:
+                for region in f:
+                    region_split = region.split( '\t' )
+                    if len( region_split ) < col_max + 1:
+                        print >> sys.stderr, "You must provide chromosome, start, and end when specifying regions from a file."
+                        sys.exit( 1 )
+                    regions.append( ( region_split[ cols[0] ], int( region_split[ cols[1] ] ), int( region_split[ cols[2] ] ) ) )
     
     coverage = VCFReadGroupGenotyper( map( lambda x: Reader( *x ), bam_files ), options.reference_genome_filename, dtype=options.coverage_dtype,
                                                min_support_depth=options.min_support_depth, min_base_quality=options.min_base_quality, 
