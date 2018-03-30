@@ -1,3 +1,3 @@
-pyBamParser==0.0.2
+pyBamParser==0.0.3
 numpy
-pyBamTools==0.0.2
+pyBamTools==0.0.4

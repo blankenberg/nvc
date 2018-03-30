@@ -21,13 +21,13 @@ if sys.version_info >= (3,):
        
 def main():
     setup(  name = "nvc",
-            version = "0.0.3",
+            version = "0.0.4",
             scripts = ["nvc/naive_variant_caller.py"],
             author = "Daniel Blankenberg",
             author_email = "dan.blankenberg@gmail.com",
             description = 'The Naive Variant Caller',
             license = "GPLv2",
-            install_requires = ['numpy', 'pyBamParser==0.0.3', 'pyBamTools==0.0.3'],
+            install_requires = ['numpy', 'pyBamParser==0.0.3', 'pyBamTools==0.0.4'],
             url = "https://github.com/blankenberg/nvc",
             zip_safe = False,
             dependency_links = [],
