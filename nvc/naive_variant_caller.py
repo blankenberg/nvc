@@ -44,7 +44,7 @@ def main():
     if not options.reference_genome_filename:
         print("Warning: Reference file has not been specified. Providing a reference genome is highly recommended.", file=sys.stderr)
     if options.output_vcf_filename:
-        out = open( options.output_vcf_filename, 'wb' )
+        out = open( options.output_vcf_filename, 'w' )
     else:
         out = sys.stdout
     
