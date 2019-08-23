@@ -29,20 +29,20 @@ def main():
     (options, args) = parser.parse_args()
     
     if options.version:
-        print "%s version %s" % ( PROGRAM_NAME, PROGRAM_VERSION )
+        print("%s version %s" % ( PROGRAM_NAME, PROGRAM_VERSION ))
         sys.exit(0)
     
     if len( options.bam_file ) == 0:
-        print >>sys.stderr, 'You must provide at least one bam (-b) file.'
+        print('You must provide at least one bam (-b) file.', file=sys.stderr)
         parser.print_help( sys.stderr )
         sys.exit( 1 )
     if options.index_file:
         assert len( options.index_file ) == len( options.bam_file ), "If you provide a name for an index file, you must provide the index name for all bam files."
-        bam_files = zip( options.bam_file, options.index_file )
+        bam_files = list(zip( options.bam_file, options.index_file ))
     else:
         bam_files = [ ( x, ) for x in options.bam_file ]
     if not options.reference_genome_filename:
-        print >> sys.stderr, "Warning: Reference file has not been specified. Providing a reference genome is highly recommended."
+        print("Warning: Reference file has not been specified. Providing a reference genome is highly recommended.", file=sys.stderr)
     if options.output_vcf_filename:
         out = open( options.output_vcf_filename, 'wb' )
     else:
@@ -54,36 +54,36 @@ def main():
             region_split = region.split( ":" )
             region = region_split.pop( 0 )
             if region_split:
-                region_split = filter( bool, region_split[0].split( '-' ) )
+                region_split = list(filter( bool, region_split[0].split( '-' ) ))
                 if region_split:
                     if len( region_split ) != 2:
-                        print >> sys.stderr, "You must specify both a start and an end, or only a chromosome when specifying regions."
+                        print("You must specify both a start and an end, or only a chromosome when specifying regions.", file=sys.stderr)
                         sys.exit( 1 )
-                    region = tuple( [ region ] + map( int, region_split ) )
+                    region = tuple( [ region ] + list(map( int, region_split )) )
             regions.append( region )
     
     if options.regions_file:
         if options.regions_file_columns:
             if len( options.regions_file_columns ) != len( options.regions_file ):
-                print >> sys.stderr, "If you are providing columns for one regions file, you must provide columns for all regions files."
+                print("If you are providing columns for one regions file, you must provide columns for all regions files.", file=sys.stderr)
                 sys.exit( 1 )
         else:
             options.regions_file_columns = ['0,1,2'] * len( options.regions_file )
         for regions_filename, regions_columns in zip( options.regions_file, options.regions_file_columns ):
-            cols = map( int, regions_columns.split( ',' ) )
+            cols = list(map( int, regions_columns.split( ',' ) ))
             if len( cols ) != 3:
-                print >> sys.stderr, "You must specify chromosome, start, and end when specifying region columns."
+                print("You must specify chromosome, start, and end when specifying region columns.", file=sys.stderr)
                 sys.exit( 1 )
             col_max = max( cols )
             with open( regions_filename, 'rt' ) as f:
                 for region in f:
                     region_split = region.split( '\t' )
                     if len( region_split ) < col_max + 1:
-                        print >> sys.stderr, "You must provide chromosome, start, and end when specifying regions from a file."
+                        print("You must provide chromosome, start, and end when specifying regions from a file.", file=sys.stderr)
                         sys.exit( 1 )
                     regions.append( ( region_split[ cols[0] ], int( region_split[ cols[1] ] ), int( region_split[ cols[2] ] ) ) )
     
-    coverage = VCFReadGroupGenotyper( map( lambda x: Reader( *x ), bam_files ), options.reference_genome_filename, dtype=options.coverage_dtype,
+    coverage = VCFReadGroupGenotyper( [Reader( *x ) for x in bam_files], options.reference_genome_filename, dtype=options.coverage_dtype,
                                                min_support_depth=options.min_support_depth, min_base_quality=options.min_base_quality, 
                                                min_mapping_quality=options.min_mapping_quality, restrict_regions=regions, use_strand=options.use_strand, 
                                                allow_out_of_bounds_positions=options.allow_out_of_bounds_positions, safe=options.safe )
